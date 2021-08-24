@@ -30,26 +30,26 @@ class Group:
 
         fileContent = ""
         fileIncludes = []
-        
+
         sourcesPathFromProject = [s.pathFromProject for s in self.sources]
         fileContent += "//ORIGINAL_PATH: " + "----".join(sourcesPathFromProject)
         fileContent += "\n\n"
-        
+
         for source in self.sources:
             if type == 'cpp':
-                fileIncludes.append('#include "%s"' % (source.RelativePath()))
-            else:                
+                fileIncludes.append('#include "%s"' % (source.AbsolutePath()))
+            else:
                 # moc_afile.h
                 mocHeaderRelPath = source.FileName()
                 dotIndex = mocHeaderRelPath.rfind('.')
                 mocCppRelPath = mocHeaderRelPath
                 if dotIndex >= 0:
                     mocCppRelPath = mocCppRelPath[0:dotIndex]
-                
+
                 # moc_afile.cpp
                 mocCppRelPath = mocCppRelPath + ".cpp"
                 fileIncludes.append('#include "%s"' % mocCppRelPath)
-        
+
         fileContent += "\n".join(fileIncludes)
         fileContent += "\n"
 
@@ -66,7 +66,7 @@ class Group:
             with open(self.file, mode="w+", encoding="utf-8") as file:
                 #print("write to : " + self.file)
                 print(fileContent, end='', flush=True, file=file)
-                
+
     def dump(self):
         sources = ", ".join([s.pathFromProject for s in self.sources])
         return "Group : " + os.path.basename(self.file) + ", type : " + self.type + ", sources : " + sources
@@ -83,10 +83,10 @@ class Group:
     def removeDeletedSourceFiles(groupList, sourceList):
         # not optimized for big projects
         # sourceList = cpps or mocs
-        
+
         sourceSet = set(sourceList)
         #print_dev(", ".join([s.pathFromProject for s in sourceSet]))
-        
+
         for group in groupList:
             #print_dev("before : " + group.dump())
             group.sources[:] = [s for s in group.sources if s in sourceSet]
@@ -219,7 +219,7 @@ class Group:
         lines = []
         with open(relPath, encoding="utf-8") as file:
             lines = file.readlines()
-        
+
         for line in lines:
             #includeRegexp = re.compile('^(\s)*#include(\s)*"(.*)"(\s)*$')
             #for line in lines:
@@ -227,7 +227,7 @@ class Group:
             #    if not match:
             #        continue
             #    include = match.group(3)
-            
+
             # The idea here is to compare the source path exactly as expressed in the .pro file.
             if not line.startswith("//ORIGINAL_PATH: "):
                 continue
@@ -236,7 +236,7 @@ class Group:
                 #print_debug("include : " + include)
                 source = ProjectSourceFile(include)
                 group.sources.append(source)
-            
+
             break
         return group
 
@@ -288,13 +288,13 @@ def getMocList(cppList):
 
 usingNamespaceRegex = re.compile('using(\s)+namespace')
 usingAllowedNamespaceRegex = re.compile('using(?:\s)+namespace(?:\s)+(.*);')
-qtWindowsHeaderRegex = re.compile('#include(\s)+<qt_windows.h>')    
+qtWindowsHeaderRegex = re.compile('#include(\s)+<qt_windows.h>')
 
 def removeIncompatibleSourcesFromList(cppList):
     global usingNamespaceRegex
     global usingAllowedNamespaceRegex
     global qtWindowsHeaderRegex
-    
+
     res = []
     for cpp in cppList:
         content = ''
@@ -320,7 +320,7 @@ def removeIncompatibleSourcesFromList(cppList):
         elif (not NAMESPACE_WHITELIST) and usingNamespaceRegex.search(content) != None:
             print_debug('unity - note: file not supported (using namespace) \"' + cpp.pathFromProject + '"')
             continue
-        
+
         if NAMESPACE_WHITELIST:
             shouldContinue = False
             for namespace in usingAllowedNamespaceRegex.finditer(content):
@@ -330,7 +330,7 @@ def removeIncompatibleSourcesFromList(cppList):
                     break
             if shouldContinue:
                 continue
-        
+
         res.append(cpp)
     return res
 
@@ -357,13 +357,13 @@ def buildArgsParser():
     parser.add_argument('--sourceListPath', type=str)
 
     return parser
-    
+
 def main():
     try:
         # Must be executed from the project's source directory (which contains the .pro file)
         # print_dev("current dir : " + os.getcwd())
         cliArgs = buildArgsParser().parse_args()
-        
+
         mode = cliArgs.mode
         strategy = cliArgs.strategy
         unityDirectory = os.path.normpath(cliArgs.tmpDir)
@@ -414,7 +414,7 @@ def main():
             cppGroupSize = len(cppList)
 
         generateUnityBuildFiles(unityPriFile, unityDirectory, mode, 'cpp', cppGroupList, cppList, cppGroupSize, "w+")
-        
+
         if mocMode == 'MOC_LVL_1':
             # LVL_0 = no moc optimization
             # LVL_1 = moc files, the group them for CL step
