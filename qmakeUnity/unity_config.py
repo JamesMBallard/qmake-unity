@@ -1,5 +1,5 @@
 # No file deletion (you should set this variable to False after having check the path to deleted files...)
-SAFE_MODE = True
+SAFE_MODE = False
 
 # Print debug information to help you understand why a some files are not grouped.
 # When you're done, please set this variable to False.
@@ -10,7 +10,7 @@ LOG_DEBUG = True
 NAMESPACE_WHITELIST = ["QRTImpl", "Esri::ArcGISRuntime"]
 
 # we let 1 more to avoid freezes
-NB_PROCESSORS = 7
+NB_PROCESSORS = 16
 
 # Number of files that will be mocced together (MOC_LVL_1 or MOC_LVL_2)
 MOC_GROUPSIZE = 50
