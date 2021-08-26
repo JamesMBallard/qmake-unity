@@ -7,7 +7,7 @@ LOG_DEBUG = True
 
 # List of namespace names that are allowed appear in a "using namespace XXX" expression in a group
 # ex : NAMESPACE_WHITELIST = ["good::namespace"]
-NAMESPACE_WHITELIST = ["QRTImpl", "Esri::ArcGISRuntime"]
+NAMESPACE_WHITELIST = ["QRTImpl", "Esri::ArcGISRuntime", "ESRI::RuntimeCore"]
 
 # we let 1 more to avoid freezes
 NB_PROCESSORS = 16
